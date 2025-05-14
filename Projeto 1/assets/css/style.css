@@ -3,8 +3,20 @@
     src: url('../fonts/Korcy.ttf') format('truetype');
 }
 
+main{
+    padding: 30px;
+}
+
+footer{    
+    padding: 30px;
+    border-bottom: 10px solid yellowgreen;
+}
+
 body {
     background: #5f5436;
+    border-top: 10px solid yellowgreen;
+    border-left: 10px solid yellowgreen;
+    border-right: 10px solid yellowgreen;
   
     .nome {
         color: yellowgreen;
@@ -21,4 +33,6 @@ body {
         display: block;
         margin: 5px auto 0 auto;
     }
+
+   
 }
