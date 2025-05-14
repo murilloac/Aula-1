@@ -9,12 +9,12 @@ main{
 
 footer{    
     padding: 30px;
-    border-bottom: 10px solid yellowgreen;
+    border-bottom: 10px dashed yellowgreen;
 }
 
 body {
     background: #5f5436;
-    border-top: 10px solid yellowgreen;
+    border-top: 10px dashed yellowgreen;
     border-left: 10px solid yellowgreen;
     border-right: 10px solid yellowgreen;
   
