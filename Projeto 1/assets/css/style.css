@@ -7,12 +7,18 @@ body {
     background: #5f5436;
   
     .nome {
-        background-color: azure;
         color: yellowgreen;
         width: 600px;
         margin: 0 auto;
         text-align: center;
         font-family: 'Korcy', sans-serif;
         font-size: 300%;
+    }
+
+    .foto{
+        width: 125px;
+        height: 182px;
+        display: block;
+        margin: 5px auto 0 auto;
     }
 }
