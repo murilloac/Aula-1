@@ -7,31 +7,34 @@ main{
     padding: 30px;
 }
 
-footer{    
-    padding: 30px;
-    border-bottom: 10px dashed yellowgreen;
-}
 
 body {
-    background: #5f5436;
-    border-top: 10px dashed yellowgreen;
-    border-left: 10px solid yellowgreen;
-    border-right: 10px solid yellowgreen;
+    background-image: url("../images/Fundo.jpg");
+    color: white;
   
     .nome {
         color: yellowgreen;
+        border-radius: 100%;
+        background: black;
+        transition: all 0.5s;
         width: 600px;
         margin: 0 auto;
+        margin-top: 25px;
         text-align: center;
         font-family: 'Korcy', sans-serif;
         font-size: 300%;
     }
 
+    .nome:hover{
+        border-radius: 0%;
+    }
+
     .foto{
-        width: 125px;
-        height: 182px;
+        width: 115px;
+        height: 162px;
         display: block;
-        margin: 5px auto 0 auto;
+        margin: 0 auto;
+        border-radius: 5px 5px 5px 5px;
     }
 
    
