@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Desempenho</title>
+<link rel="stylesheet" href="./assets/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<h2>Motivacional Chocolate</h2>
+<label>Data Início: <input type="datetime-local" id="dataInicio"></label>
+<label>Data Fim: <input type="datetime-local" id="dataFim"></label>
+<button id="buscar">Buscar Ranking</button>
+
+<div id="saida"></div>
+
+<script>
+const BLIP_API_URL = "https://azship.http.msging.net/commands";
+const BLIP_AUTH_TOKEN = "Key YXpwcmluY2lwYWw6cmZHU2R2UUhtQUM2bjhnS1dsd3Q=";
+
+const nomesAgentes = {
+    "suporte10%40azship.com.br@blip.ai": "Dayane",
+    "suporte6%40azship.com.br@blip.ai": "Rafael",
+    "suporte%40azship.com.br@blip.ai": "Yul",
+    "suporte4%40azship.com.br@blip.ai": "Samuel",
+    "suporte3%40azship.com.br@blip.ai": "Otavio",
+    "suporte8%40azship.com.br@blip.ai": "Murillo"
+};
+
+// metas por time (em minutos)
+const METAS = {
+  "default": 20,
+  "Suporte N2": 30
+};
+
+async function buscarTodosTickets() {
+  let todosTickets = [];
+  let skip = 0;
+  const take = 100;
+
+  while (true) {
+    const uri = `/tickets?$status=Closed&$take=${take}&$skip=${skip}`;
+    const payload = {
+      id: String(skip),
+      to: "postmaster@desk.msging.net",
+      method: "get",
+      uri
+    };
+
+    const response = await fetch(BLIP_API_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": BLIP_AUTH_TOKEN,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) break;
+
+    const data = await response.json();
+    const items = data.resource?.items || [];
+    if (items.length === 0) break;
+
+    todosTickets = todosTickets.concat(items);
+    skip += take;
+  }
+  return todosTickets;
+}
+
+function strParaDate(isoStr) {
+  return new Date(isoStr);
+}
+
+function filtrarTicketsPorData(tickets, dataInicio, dataFim) {
+  const inicio = new Date(dataInicio);
+  const fim = new Date(dataFim);
+
+  return tickets.filter(t => 
+    t.openDate && t.closeDate &&
+    strParaDate(t.openDate) >= inicio &&
+    strParaDate(t.openDate) <= fim
+  );
+}
+
+function calcularDuracao(ticket) {
+  const abertura = strParaDate(ticket.openDate);
+  const fechamento = strParaDate(ticket.closeDate);
+  return (fechamento - abertura) / 60000; // duração em minutos
+}
+
+function calcularDesempenho(tmaMinutos, team) {
+  const meta = METAS[team] || 20; // default 20 se não achar
+  const desempenho = (1 - (tmaMinutos / meta)) * 100;
+  return Math.max(0, desempenho.toFixed(2)); // evita negativos
+}
+
+document.getElementById("buscar").addEventListener("click", async () => {
+  const dataInicio = document.getElementById("dataInicio").value;
+  const dataFim = document.getElementById("dataFim").value;
+
+  if (!dataInicio || !dataFim) {
+    alert("Por favor, selecione as duas datas.");
+    return;
+  }
+
+  document.getElementById("saida").textContent = "Buscando tickets...";
+
+  const tickets = await buscarTodosTickets();
+  const filtrados = filtrarTicketsPorData(tickets, dataInicio, dataFim);
+
+  const ticketsFiltrados = filtrados.filter(
+    t => t.team === "Default" || t.team === "Suporte N2"
+  );
+
+  const temposPorAgente = {};
+  ticketsFiltrados.forEach(ticket => {
+    const agenteOriginal = ticket.agentIdentity || "Não atribuído";
+    const agente = nomesAgentes[agenteOriginal] || agenteOriginal;
+    const duracao = calcularDuracao(ticket);
+    const team = ticket.team || "Default";
+
+    if (!temposPorAgente[agente]) {
+      temposPorAgente[agente] = { total: 0, qtd: 0, team };
+    }
+    temposPorAgente[agente].total += duracao;
+    temposPorAgente[agente].qtd += 1;
+  });
+
+  let html = `
+    <p>Tickets encontrados no período: ${filtrados.length}</p>
+    <p>Tickets do team Default + Suporte N2: ${ticketsFiltrados.length}</p>
+    <table>
+      <tr>
+        <th>Agente</th>
+        <th>Time</th>
+        <th>Qtd Tickets</th>
+        <th>Desempenho (%)</th>
+      </tr>
+  `;
+
+  for (const agente in temposPorAgente) {
+    const { total, qtd, team } = temposPorAgente[agente];
+    const tmaMinutos = total / qtd;
+    const desempenho = calcularDesempenho(tmaMinutos, team);
+
+    html += `
+      <tr>
+        <td>${agente}</td>
+        <td>${team}</td>
+        <td>${qtd}</td>
+        <td>${desempenho}%</td>
+      </tr>
+    `;
+  }
+
+  html += "</table>";
+  document.getElementById("saida").innerHTML = html;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Validador de Planilha de Pedidos</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { color: #333; }
+    #erros { color: red; white-space: pre-wrap; margin-top: 20px; }
+    #sucesso { color: green; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Validador de Planilha de Pedidos</h2>
+  <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" />
+  <button onclick="processarPlanilha()">Validar Planilha</button>
+
+  <div id="erros"></div>
+  <div id="sucesso"></div>
+
+  <script>
+    // Cabeçalho oficial esperado na planilha, para normalização
+    const cabecalhoOficial = [
+      "Código Pedido", "OPERACAO", "CNPJ Coleta", "Produto", "Quantidade", "Peso (Kg)",
+      "Data Coleta", "Data Entrega", "Valor Produto", "Documento Cliente", "Nome Cliente",
+      "Endereço Cliente", "CEP Cliente", "Bairro Cliente", "Cidade Cliente", "UF Cliente",
+      "LATITUDE", "LONGITUDE", "Observação", "Informação da entrega"
+    ];
+
+    // Sinonimos que podem aparecer na planilha, mapeados para cabeçalho oficial
+    const sinonimos = {
+      "Qtd": "Quantidade",
+      "QTD": "Quantidade",
+      "Peso": "Peso (Kg)",
+      "Valor": "Valor Produto",
+      "Doc Cliente": "Documento Cliente",
+      "Cliente": "Nome Cliente",
+      "Endereco": "Endereço Cliente",
+      "CEP": "CEP Cliente",
+      "BairroCliente": "Bairro Cliente",
+      "CidadeCliente": "Cidade Cliente",
+      "UF": "UF Cliente",
+    };
+
+    // Função para validar CNPJ corretamente (validação oficial com dígitos verificadores)
+    function validarCNPJ(cnpj) {
+      cnpj = (cnpj || "").replace(/\D/g, "");
+      if (cnpj.length !== 14) return false;
+
+      // Descarta CNPJs com todos dígitos iguais (exemplo: 00000000000000)
+      if (/^(\d)\1+$/.test(cnpj)) return false;
+
+      // Validação dígitos verificadores
+      let tamanho = cnpj.length - 2;
+      let numeros = cnpj.substring(0, tamanho);
+      let digitos = cnpj.substring(tamanho);
+      let soma = 0;
+      let pos = tamanho - 7;
+
+      for (let i = tamanho; i >= 1; i--) {
+        soma += numeros.charAt(tamanho - i) * pos--;
+        if (pos < 2) pos = 9;
+      }
+
+      let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+      if (resultado != digitos.charAt(0)) return false;
+
+      tamanho = tamanho + 1;
+      numeros = cnpj.substring(0, tamanho);
+      soma = 0;
+      pos = tamanho - 7;
+
+      for (let i = tamanho; i >= 1; i--) {
+        soma += numeros.charAt(tamanho - i) * pos--;
+        if (pos < 2) pos = 9;
+      }
+
+      resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+      if (resultado != digitos.charAt(1)) return false;
+
+      return true;
+    }
+
+    // Validações simples para os demais campos
+    function validarDocumento(doc) {
+      doc = (doc || "").replace(/\D/g, "");
+      return doc.length === 11 || doc.length === 14;
+    }
+
+    function validarCEP(cep) {
+      cep = (cep || "").replace(/\D/g, "");
+      return cep.length === 8;
+    }
+
+    function validarUF(uf) {
+      return /^[A-Z]{2}$/.test(uf || "");
+    }
+
+    function validarData(data) {
+      if (!data) return false;
+      if (data instanceof Date && !isNaN(data)) return true;
+      const partes = (data + "").split(/[\/\-]/);
+      if (partes.length !== 3) return false;
+      let [d, m, a] = partes.map(x => parseInt(x, 10));
+      if (a < 1900 || a > 2100) return false;
+      let dt = new Date(a, m - 1, d);
+      return dt.getDate() === d && dt.getMonth() === m - 1 && dt.getFullYear() === a;
+    }
+
+    function validarNumero(num) {
+      return !isNaN(parseFloat(num)) && isFinite(num);
+    }
+
+    function processarPlanilha() {
+      // Limpa mensagens anteriores
+      document.getElementById('erros').innerText = "";
+      document.getElementById('sucesso').innerText = "";
+
+      const input = document.getElementById('fileInput');
+      if (!input.files.length) {
+        alert("Selecione uma planilha!");
+        return;
+      }
+
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        // Lê a planilha
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
+        const dados = XLSX.utils.sheet_to_json(primeiraAba, {defval: ""});
+
+        if (dados.length === 0) {
+          alert("Planilha vazia!");
+          return;
+        }
+
+        // Normaliza os nomes das colunas usando o cabeçalho oficial e sinônimos
+        let dadosCorrigidos = dados.map(linha => {
+          let novaLinha = {};
+          cabecalhoOficial.forEach(col => {
+            let valor = "";
+            // Busca o valor na linha: procura pela coluna oficial ou pelo sinônimo que a representa
+            for (const key in linha) {
+              if (key === col || sinonimos[key] === col) {
+                valor = linha[key];
+                break; // para ao encontrar o primeiro valor válido
+              }
+            }
+            novaLinha[col] = valor;
+          });
+          return novaLinha;
+        });
+
+        let erros = [];
+
+        // Validação de cada linha
+        dadosCorrigidos.forEach((linha, idx) => {
+          const linhaNum = idx + 2; // Linha real na planilha (considerando cabeçalho na linha 1)
+
+          // Logs para ajudar na depuração (verifique no console do navegador)
+          console.log(`Validando linha ${linhaNum}:`, linha);
+          console.log("CNPJ Coleta:", linha["CNPJ Coleta"], "=> válido?", validarCNPJ(linha["CNPJ Coleta"]));
+
+          if (!linha["Código Pedido"]) erros.push(`Linha ${linhaNum}: Código Pedido vazio`);
+          if (!validarCNPJ(linha["CNPJ Coleta"])) erros.push(`Linha ${linhaNum}: CNPJ Coleta inválido`);
+          if (!validarDocumento(linha["Documento Cliente"])) erros.push(`Linha ${linhaNum}: Documento Cliente inválido`);
+          if (!validarCEP(linha["CEP Cliente"])) erros.push(`Linha ${linhaNum}: CEP inválido`);
+          if (!validarUF(linha["UF Cliente"])) erros.push(`Linha ${linhaNum}: UF inválida (use sigla de 2 letras)`);
+          if (!validarData(linha["Data Coleta"])) erros.push(`Linha ${linhaNum}: Data Coleta inválida`);
+          if (!validarData(linha["Data Entrega"])) erros.push(`Linha ${linhaNum}: Data Entrega inválida`);
+          if (!validarNumero(linha["Quantidade"])) erros.push(`Linha ${linhaNum}: Quantidade inválida`);
+          if (!validarNumero(linha["Peso (Kg)"])) erros.push(`Linha ${linhaNum}: Peso (Kg) inválido`);
+        });
+
+        // Se houver erros, exibe-os e não gera o arquivo
+        if (erros.length > 0) {
+          document.getElementById('erros').innerText = "⚠️ Erros encontrados:\n\n" + erros.join("\n");
+          return;
+        }
+
+        // Caso contrário, informa sucesso e gera o arquivo para download
+        document.getElementById('sucesso').innerText = "✅ Planilha validada com sucesso! Arquivo gerado.";
+
+        const ws = XLSX.utils.json_to_sheet(dadosCorrigidos, {header: cabecalhoOficial});
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Pedidos Corrigidos");
+        XLSX.writeFile(wb, "pedidos_corrigidos.xlsx");
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+  </script>
+</body>
+</html>
