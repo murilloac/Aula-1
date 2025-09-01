@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Sentimentos</title>
+    <link rel="stylesheet" href="../style/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <img src="../images/logo_azship_sem_fundo.png" alt="Logo" class="logo">
+        <h1>Dashboard de Análise de Sentimentos</h1>
+    </header>
+
+    <!-- Upload da Planilha -->
+    <section class="upload">
+        <h2>Importar Conversas</h2>
+        <form id="uploadForm">
+            <input type="file" id="fileInput" accept=".csv" required>
+            <button type="submit">Enviar e Avaliar</button>
+        </form>
+        <p id="statusMsg"></p>
+    </section>
+
+    <!-- Download -->
+    <section class="download">
+        <button id="downloadBtn" disabled>Baixar Análise Final</button>
+    </section>
+
+    <!-- KPIs -->
+    <section class="kpis">
+        <div class="kpi-card positivo">
+            <h2>Positivos</h2>
+            <p id="kpi-positivos">--%</p>
+        </div>
+        <div class="kpi-card negativo">
+            <h2>Negativos</h2>
+            <p id="kpi-negativos">--%</p>
+        </div>
+        <div class="kpi-card neutro">
+            <h2>Neutros</h2>
+            <p id="kpi-neutros">--%</p>
+        </div>
+        <div class="kpi-card total">
+            <h2>Total</h2>
+            <p id="kpi-total">--</p>
+        </div>
+    </section>
+
+    <!-- Gráficos -->
+    <section class="graficos">
+        <div class="grafico-card">
+            <h2>Distribuição de Sentimentos</h2>
+            <canvas id="graficoPizza"></canvas>
+        </div>
+        <div class="grafico-card">
+            <h2>Palavras Mais Frequentes</h2>
+            <canvas id="graficoPalavras" height="400"></canvas>
+        </div>
+    </section>
+
+    <!-- Tabela de conversas -->
+    <section class="tabela">
+        <h2>Detalhes das Conversas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Conversa</th>
+                    <th>Sentimento</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-dados"></tbody>
+        </table>
+    </section>
+
+    <script src="../JS/script.js"></script>
+
+    <footer>
+        <p class="rodape"> Creation By Murillo A.C. 2025 🚀🚀🚀</p>
+    </footer>
+</body>
+
+</html>
