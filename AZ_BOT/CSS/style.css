@@ -1,0 +1,135 @@
+
+/* Fundo animado */
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #fd7784, #fa4e82, #b156f3, #531181);
+  background-size: 400% 400%;
+  animation: gradient 12s ease infinite;
+  z-index: -2;
+}
+
+.background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../images/Robozinho\ TMS\ Logísticafundo.png') right center/contain no-repeat,
+              url('../images/Robozinho\ TMS\ Pose\ Dinâmica\ fundo.png') left center/contain no-repeat;
+  opacity: 1; /* transparência da imagem */
+  z-index: -1;
+}
+
+
+/* Animação do gradiente */
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Container do chat */
+.chat-container {
+  width: 90%;          /* ocupa mais espaço horizontal */
+  max-width: 750px;    /* limite para não ficar gigante */
+  height: 80vh;        /* altura quase toda da tela */
+  max-height: 90vh;    /* limite */
+  margin: 30px auto;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+
+#chat-header {
+    background-color: #531181;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px;
+    text-align: center;
+}
+
+/* Área das mensagens */
+.chat-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+/* Estilo das mensagens */
+.message {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-radius: 16px;
+  max-width: 70%;
+}
+
+.message.user {
+  background: #fca0b0;
+  align-self: flex-end;
+  border-radius: 16px 16px 0 16px; /* canto "setinha" do balão */
+}
+
+.message.bot {
+  background: #dab0f8;
+  align-self: flex-start;
+  border-radius: 16px 16px 16px 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+
+/* Área de entrada */
+.chat-input-area {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+#chat-input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+#chat-send {
+  padding: 10px 20px;
+  background: #531181;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#chat-send:hover {
+  background: #531181;
+}
+
+.truck {
+  position: fixed; /* fica por cima do fundo */
+  bottom: 20px; /* altura da "estrada" */
+  right: -150px; /* começa fora da tela */
+  width: 120px;
+  height: 80px;
+  background: url('../images/Caminhãozinho.png') no-repeat center/contain;
+  animation: moveTruck 12s linear infinite; /* animação infinita */
+}
+
+@keyframes moveTruck {
+  0% {
+    right: -150px; /* começa fora da tela esquerda */
+  }
+  100% {
+    right: 100vw; /* vai até fora da tela direita */
+  }
+}

@@ -59,7 +59,7 @@ function processarPalavrasFrequentes(mensagens) {
     // 1. Defina as palavras a serem ignoradas (stop words)
     // Adicione mais palavras conforme a necessidade
     const stopWords = new Set([
-        'para', 'mais', 'ajudar', 'ajudo', 'posso', 'você', 'aqui', 'algo', 'como', 'esta', 'esse', 'está', 'certo', 'dayane', 'essa', 'isso', 'mesmo', 'precisando', 'momento', 'estamos', 'nosso', 'nada', 'nome', 'muito', 'caso', 'pode', 'seja', 'chamar', 'qual', 'precisa', 'novamente', 'vindo', 'estou', 'tenha', 'favor', 'ajuda', 'eles', 'tarde', 'ainda', 'então', 'consegue', 'chamo', 'time', 'agora', 'tudo', 'alguma', 'entendi', 'quando', 'faço', 'fazer', 'coisa', 'nesse', 'nessa', 'assim', 'parte'
+        'para', 'mais', 'ajudar', 'ajudo', 'posso', 'você', 'aqui', 'algo', 'como', 'esta', 'esse', 'está', 'certo', 'dayane', 'essa', 'isso', 'mesmo', 'precisando', 'momento', 'estamos', 'nosso', 'nada', 'nome', 'muito', 'caso', 'pode', 'seja', 'chamar', 'qual', 'precisa', 'novamente', 'vindo', 'estou', 'tenha', 'favor', 'ajuda', 'eles', 'tarde', 'ainda', 'então', 'consegue', 'chamo', 'time', 'agora', 'tudo', 'alguma', 'entendi', 'quando', 'faço', 'fazer', 'coisa', 'nesse', 'nessa', 'assim', 'parte', 'samuel', 'visto', 'preocupe'
     ]);
 
     // Juntar todas as mensagens em uma única string
@@ -102,10 +102,10 @@ function criarGraficoPalavrasFrequentes(palavrasFrequentes) {
                 label: 'Frequência',
                 data: palavrasFrequentes.map(item => item.frequencia),
                 backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                    '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#36A2EB',
-                    '#FFCE56', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                    '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0'
+                    '#fa093eff', '#36eb4eff', '#f8b60fff', '#13ce3cff', '#9966FF',
+                    '#FF9F40', '#fa335eff', '#0053faff', '#dd18d3ff', '#ec6314ff',
+                    '#FFCE56', '#f10438ff', '#f00b0bff', '#fcba13ff', '#f5e610ff',
+                    '#5a09fcff', '#FF9F40', '#f8053aff', '#022c2eff', '#ea64fcff'
                 ],
                 borderWidth: 1
             }]
@@ -180,7 +180,7 @@ function atualizarDashboard(data) {
             labels: ["Positivo", "Negativo", "Neutro"],
             datasets: [{
                 data: [sentimentos.positivo, sentimentos.negativo, sentimentos.neutro],
-                backgroundColor: ["#4CAF50", "#F44336", "#FFC107"]
+                backgroundColor: ["#00f708ff", "#eb1000ff", "#FFC107"]
             }]
         },
         options: { responsive: true }
